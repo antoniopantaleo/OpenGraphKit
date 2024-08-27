@@ -8,7 +8,7 @@ struct OpenGraphKit: AsyncParsableCommand {
     mutating func run() async throws {
         try registerFonts()
         guard let scaleFactor =  NSScreen.main?.backingScaleFactor else { return }
-        let renderer = ImageRenderer(content: try viewToSnapshot("Hello world"))
+        let renderer = ImageRenderer(content: try viewToSnapshot("Decorator Pattern, a personal favorite"))
         renderer.scale = scaleFactor
         let image = renderer.cgImage
         guard let data = image?.png else { return }
@@ -30,16 +30,30 @@ struct OpenGraphKit: AsyncParsableCommand {
             let imageUrl = Bundle.module.url(forResource: "profile", withExtension: "png"),
             let data = try? Data(contentsOf: imageUrl),
             let nsImage = NSImage(data: data) else { fatalError() }
-        return VStack(spacing: 5) {
-            Image(nsImage: nsImage)
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text(title)
-                .font(.custom("Inter", size: 40))
-                .fontWeight(.bold)
-        }
-        .frame(width: 1080, height: 720)
-        .background(Color.red)
+        return Color(red: 17 / 255, green: 24 / 255, blue: 39 / 255)
+            .frame(width: 1020 * 1.91, height: 1020)
+            .overlay {
+                HStack(spacing: 80) {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 550)
+                        .foregroundColor(.accentColor)
+                    VStack(alignment: .leading, spacing: 30) {
+                        Text(title)
+                            .foregroundStyle(.white)
+                            .font(.custom("Inter", size: 130))
+                            .fontWeight(.bold)
+                        
+                        Text("Adding features without touching existing code; is it even possible?")
+                            .foregroundStyle(.white.opacity(0.7))
+                            .font(.custom("Inter", size: 50))
+                            .fontWeight(.light)
+                    }
+                    
+                }
+                .padding(50)
+            }
     }
 }
 
