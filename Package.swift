@@ -8,7 +8,7 @@ let package = Package(
     products: [
         .executable(
             name: "opengraphkit",
-            targets: ["OpenGraphKit"]
+            targets: ["OpenGraphKit-Executable"]
         )
     ],
     dependencies: [
@@ -18,20 +18,33 @@ let package = Package(
         ),
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "OpenGraphKit",
+            swiftSettings: [
+                .enableUpcomingFeature("BareSlashRegexLiterals")
+            ]
+        ),
+        .executableTarget(
+            name: "OpenGraphKit-Executable",
             dependencies: [
+                .target(name: "OpenGraphKit"),
                 .product(
                     name: "ArgumentParser",
                     package: "swift-argument-parser"
                 ),
             ],
             path: ".",
-            sources: [ "Sources/" ],
+            sources: [ "Sources/OpenGraphKit-Executable" ],
             resources: [
                 .process("Resources/Fonts"),
                 .process("Resources/Images")
             ]
         ),
+        .testTarget(
+            name: "OpenGraphKitTests",
+            dependencies: [
+                .target(name: "OpenGraphKit")
+            ]
+        )
     ]
 )

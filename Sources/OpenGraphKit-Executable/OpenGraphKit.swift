@@ -4,8 +4,13 @@ import SwiftUI
 @main
 struct OpenGraphKit: AsyncParsableCommand {
     
+    @Argument
+    private var blogPostPath: String
+    
     @MainActor
     mutating func run() async throws {
+        guard let url = URL(string: blogPostPath, relativeTo: .currentDirectory()) else { fatalError("file not found") }
+        let data = try! Data(contentsOf: url)
         try registerFonts()
         guard let scaleFactor =  NSScreen.main?.backingScaleFactor else { return }
         let renderer = ImageRenderer(content: try viewToSnapshot("Decorator Pattern, a personal favorite"))
@@ -54,22 +59,5 @@ struct OpenGraphKit: AsyncParsableCommand {
                 }
                 .padding(50)
             }
-    }
-}
-
-fileprivate extension CGImage {
-    var png: Data? {
-        guard 
-            let mutableData = CFDataCreateMutable(nil, 0),
-            let destination = CGImageDestinationCreateWithData(
-                mutableData,
-                "public.png" as CFString,
-                1,
-                nil
-            )
-        else { return nil }
-        CGImageDestinationAddImage(destination, self, nil)
-        guard CGImageDestinationFinalize(destination) else { return nil }
-        return mutableData as Data
     }
 }
