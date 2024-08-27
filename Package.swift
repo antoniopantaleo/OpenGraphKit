@@ -25,6 +25,12 @@ let package = Package(
                     name: "ArgumentParser",
                     package: "swift-argument-parser"
                 ),
+            ],
+            path: ".",
+            sources: [ "Sources/" ],
+            resources: [
+                .process("Resources/Fonts"),
+                .process("Resources/Images")
             ]
         ),
     ]
