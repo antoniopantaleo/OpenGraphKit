@@ -7,14 +7,14 @@
 
 import Foundation
 
-enum BlogParser {
+public enum BlogParser {
     
     enum Error: Swift.Error {
         case titleNotFound
         case quoteNotFound
     }
     
-    static func parseBlogData(_ content: String) async throws -> (title: String, quote: String) {
+    public static func parseBlogData(_ content: String) async throws -> (title: String, quote: String) {
         let titleRegex = /(?:title:\s+)(?<title>.+)/
         let quoteRegex = /---\n*(?<quote>.+)\n*(?=<!--more-->)/
         

@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import OpenGraphKit
+import OpenGraphKit
 
 final class BlogParserTests: XCTestCase {
     

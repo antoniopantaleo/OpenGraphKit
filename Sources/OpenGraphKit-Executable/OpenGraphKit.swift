@@ -1,4 +1,5 @@
 import ArgumentParser
+import OpenGraphKit
 import SwiftUI
 
 @main
@@ -6,18 +7,22 @@ struct OpenGraphKit: AsyncParsableCommand {
     
     @Argument
     private var blogPostPath: String
+    @Argument
+    private var outputFolder: String
     
     @MainActor
     mutating func run() async throws {
         guard let url = URL(string: blogPostPath, relativeTo: .currentDirectory()) else { fatalError("file not found") }
         let data = try! Data(contentsOf: url)
         try registerFonts()
-        guard let scaleFactor =  NSScreen.main?.backingScaleFactor else { return }
-        let renderer = ImageRenderer(content: try viewToSnapshot("Decorator Pattern, a personal favorite"))
-        renderer.scale = scaleFactor
-        let image = renderer.cgImage
-        guard let data = image?.png else { return }
-        FileManager.default.createFile(atPath: "myImage.png", contents: data)
+        let (title, quote) = try await BlogParser.parseBlogData(String(data: data, encoding: .utf8)!)
+        let imageData = try ThumbnailCreator.createThumbnailImage(title: title, quote: quote)
+        let fileName = url.lastPathComponent
+        guard let outputFolderURL = URL(string: outputFolder, relativeTo: .currentDirectory()) else { fatalError() }
+        FileManager.default.createFile(
+            atPath: outputFolderURL.appending(component: fileName.replacingOccurrences(of: ".md", with: ".png")).path(),
+            contents: imageData
+        )
         print("✅", "saved")
     }
     
@@ -30,34 +35,4 @@ struct OpenGraphKit: AsyncParsableCommand {
         CTFontManagerRegisterFontURLs(fontsUrls as CFArray, .process, false, nil)
     }
     
-    func viewToSnapshot(_ title: String) throws -> some View {
-        guard
-            let imageUrl = Bundle.module.url(forResource: "profile", withExtension: "png"),
-            let data = try? Data(contentsOf: imageUrl),
-            let nsImage = NSImage(data: data) else { fatalError() }
-        return Color(red: 17 / 255, green: 24 / 255, blue: 39 / 255)
-            .frame(width: 1020 * 1.91, height: 1020)
-            .overlay {
-                HStack(spacing: 80) {
-                    Image(nsImage: nsImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 550)
-                        .foregroundColor(.accentColor)
-                    VStack(alignment: .leading, spacing: 30) {
-                        Text(title)
-                            .foregroundStyle(.white)
-                            .font(.custom("Inter", size: 130))
-                            .fontWeight(.bold)
-                        
-                        Text("Adding features without touching existing code; is it even possible?")
-                            .foregroundStyle(.white.opacity(0.7))
-                            .font(.custom("Inter", size: 50))
-                            .fontWeight(.light)
-                    }
-                    
-                }
-                .padding(50)
-            }
-    }
 }

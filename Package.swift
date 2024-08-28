@@ -34,7 +34,7 @@ let package = Package(
                 ),
             ],
             path: ".",
-            sources: [ "Sources/OpenGraphKit-Executable" ],
+            sources: [ "Sources/OpenGraphKit-Executable/" ],
             resources: [
                 .process("Resources/Fonts"),
                 .process("Resources/Images")
