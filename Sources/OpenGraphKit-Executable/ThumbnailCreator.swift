@@ -49,7 +49,7 @@ enum ThumbnailCreator {
                             .font(.custom("Inter", size: 130))
                             .fontWeight(.bold)
                         
-                        Text("Adding features without touching existing code; is it even possible?")
+                        Text(quote)
                             .foregroundStyle(.white.opacity(0.7))
                             .font(.custom("Inter", size: 50))
                             .fontWeight(.light)
