@@ -14,17 +14,22 @@ public enum BlogParser {
         case quoteNotFound
     }
     
-    public static func parseBlogData(_ content: String) async throws -> (title: String, quote: String) {
-        let titleRegex = /(?:title:\s+)(?<title>.+)/
-        let quoteRegex = /---\n*(?<quote>.+)\n*(?=<!--more-->)/
-        
-        async let titleMatch = content.firstMatch(of: titleRegex)
-        async let quoteMatch = content.firstMatch(of: quoteRegex)
+    private static func extract(regex: Regex<(Substring, Substring)>, from content: String) throws -> String {
+        guard let match = content.firstMatch(of: regex) else { throw Error.quoteNotFound }
+        let result = String(match.output.1)
+        guard !result.isEmpty else { throw Error.quoteNotFound }
+        return result
+    }
     
-        guard let titleMatch = await titleMatch, let title = Optional(String(titleMatch.output.title)), !title.isEmpty else { throw Error.titleNotFound }
-        guard let quoteMatch = await quoteMatch, let quote = Optional(String(quoteMatch.output.quote)), !quote.isEmpty else { throw Error.quoteNotFound }
+    
+    public static func parseBlogData(_ content: String) async throws -> (title: String, quote: String) {
+        let titleRegex = /(?:title:\s+)(.+)/
+        let quoteRegex = /---\n*(.+)\n*(?=<!--more-->)/
         
-        return (title, quote)
+        async let title = extract(regex: titleRegex, from: content)
+        async let quote = extract(regex: quoteRegex, from: content)
+        
+        return try await (title, quote)
     }
     
 }
