@@ -17,7 +17,7 @@ struct OpenGraphKit: AsyncParsableCommand {
         }
         let data = try Data(contentsOf: url)
         try registerFonts()
-        let (title, quote) = try await BlogParser.parseBlogData(String(data: data, encoding: .utf8)!)
+        let (title, quote) = try await BlogParser.parseBlogData(String(decoding: data, as: UTF8.self))
         let imageData = try ThumbnailCreator.createThumbnailImage(title: title, quote: quote)
         let fileName = url.lastPathComponent
         guard let outputFolderURL = URL(string: outputFolder, relativeTo: .currentDirectory()) else { fatalError() }
