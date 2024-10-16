@@ -12,12 +12,16 @@ enum ThumbnailCreator {
     
     @MainActor
     static func createThumbnailImage(title: String, quote: String) throws -> Data {
-        guard let scaleFactor =  NSScreen.main?.backingScaleFactor else { fatalError() }
+        guard let scaleFactor =  NSScreen.main?.backingScaleFactor else {
+            throw OpenGraphKit.Error(reason: "Unable to generate image")
+        }
         let profileImage = try getProfileImage()
         let renderer = ImageRenderer(content: view(title: title, quote: quote, image: profileImage))
         renderer.scale = scaleFactor
         let image = renderer.cgImage
-        guard let data = image?.png, !data.isEmpty else { fatalError() }
+        guard let data = image?.png, !data.isEmpty else {
+            throw OpenGraphKit.Error(reason: "Unable to generate image data")
+        }
         return data
     }
     
@@ -25,7 +29,10 @@ enum ThumbnailCreator {
         guard
             let imageUrl = Bundle.module.url(forResource: "profile", withExtension: "png"),
             let data = try? Data(contentsOf: imageUrl),
-            let nsImage = NSImage(data: data) else { fatalError() }
+            let nsImage = NSImage(data: data)
+        else {
+            throw OpenGraphKit.Error(reason: "Unable to load profile image")
+        }
         return nsImage
     }
     
@@ -48,7 +55,6 @@ enum ThumbnailCreator {
                             .foregroundStyle(.white)
                             .font(.custom("Inter", size: 130))
                             .fontWeight(.bold)
-                        
                         Text(quote)
                             .foregroundStyle(.white.opacity(0.7))
                             .font(.custom("Inter", size: 50))

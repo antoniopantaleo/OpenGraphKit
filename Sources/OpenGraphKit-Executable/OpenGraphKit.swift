@@ -12,8 +12,10 @@ struct OpenGraphKit: AsyncParsableCommand {
     
     @MainActor
     mutating func run() async throws {
-        guard let url = URL(string: blogPostPath, relativeTo: .currentDirectory()) else { fatalError("file not found") }
-        let data = try! Data(contentsOf: url)
+        guard let url = URL(string: blogPostPath, relativeTo: .currentDirectory()) else {
+            throw Error(reason: "The file URL can not be found")
+        }
+        let data = try Data(contentsOf: url)
         try registerFonts()
         let (title, quote) = try await BlogParser.parseBlogData(String(data: data, encoding: .utf8)!)
         let imageData = try ThumbnailCreator.createThumbnailImage(title: title, quote: quote)
@@ -30,7 +32,7 @@ struct OpenGraphKit: AsyncParsableCommand {
         guard var fontsUrls = Bundle.module.urls(
             forResourcesWithExtension: nil,
             subdirectory: "Resources/Fonts"
-        ) else { fatalError("No fonts found")}
+        ) else { throw Error(reason: "Unable to find fonts") }
         fontsUrls.removeAll { url in url.lastPathComponent == ".DS_Store" }
         CTFontManagerRegisterFontURLs(fontsUrls as CFArray, .process, false, nil)
     }
