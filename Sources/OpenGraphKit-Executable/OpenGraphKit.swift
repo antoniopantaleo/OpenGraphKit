@@ -30,9 +30,10 @@ struct OpenGraphKit: AsyncParsableCommand {
     
     private func registerFonts() throws {
         guard var fontsUrls = Bundle.module.urls(
-            forResourcesWithExtension: nil,
-            subdirectory: "Resources/Fonts"
-        ) else { throw Error(reason: "Unable to find fonts") }
+            forResourcesWithExtension: "ttf",
+            subdirectory: nil
+        ), !fontsUrls.isEmpty
+        else { throw Error(reason: "Unable to find fonts") }
         fontsUrls.removeAll { url in url.lastPathComponent == ".DS_Store" }
         CTFontManagerRegisterFontURLs(fontsUrls as CFArray, .process, false, nil)
     }
