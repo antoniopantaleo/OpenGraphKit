@@ -16,7 +16,7 @@ struct OpenGraphKit: AsyncParsableCommand {
             throw Error(reason: "The file URL can not be found")
         }
         let data = try Data(contentsOf: url)
-        try registerFonts()
+        try registerFonts(from: .module)
         let (title, quote) = try await BlogParser.parseBlogData(String(decoding: data, as: UTF8.self))
         let imageData = try ThumbnailCreator.createThumbnailImage(title: title, quote: quote)
         let fileName = url.lastPathComponent
@@ -28,14 +28,10 @@ struct OpenGraphKit: AsyncParsableCommand {
         print("✅", "saved")
     }
     
-    private func registerFonts() throws {
-        guard var fontsUrls = Bundle.module.urls(
-            forResourcesWithExtension: "ttf",
-            subdirectory: nil
-        ), !fontsUrls.isEmpty
-        else { throw Error(reason: "Unable to find fonts") }
-        fontsUrls.removeAll { url in url.lastPathComponent == ".DS_Store" }
+    private func registerFonts(from bundle: Bundle) throws {
+        guard let fontsUrls = bundle.urls(forResourcesWithExtension: "ttf", subdirectory: nil), !fontsUrls.isEmpty else {
+            throw Error(reason: "Unable to find fonts")
+        }
         CTFontManagerRegisterFontURLs(fontsUrls as CFArray, .process, false, nil)
     }
-    
 }
